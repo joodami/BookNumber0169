@@ -2,43 +2,37 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบขอเลขหนังสือราชการออนไลน์</title>
+<title>ระบบขอเลขหนังสือ</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 <body>
-<div class="container">
-  <img src="https://firebasestorage.googleapis.com/v0/b/banner-web-app.jpg" class="banner" alt="banner">
 
-  <div class="card login-card">
+<div class="container">
+  <div class="card login">
     <h2>เข้าสู่ระบบ</h2>
-    <input type="text" id="phone" placeholder="กรอกหมายเลขโทรศัพท์">
+    <input id="phone" placeholder="หมายเลขโทรศัพท์">
     <button id="loginBtn">เข้าสู่ระบบ</button>
   </div>
 
-  <div class="card form-card hidden">
-    <h2>กรอกข้อมูลหนังสือออก</h2>
-    <label>วันที่</label>
+  <div class="card form hidden">
+    <h2>กรอกข้อมูลหนังสือ</h2>
     <input type="date" id="date">
-    <label>เรื่อง</label>
-    <textarea id="subject"></textarea>
-    <label>ถึงหน่วยงาน</label>
-    <textarea id="toDept"></textarea>
-    <label>กลุ่มงาน</label>
+    <textarea id="subject" placeholder="เรื่อง"></textarea>
+    <textarea id="toDept" placeholder="ถึง"></textarea>
+
     <select id="department">
-      <option disabled selected>เลือกกลุ่มงาน</option>
+      <option value="">เลือกกลุ่มงาน</option>
       <option>กลุ่มบริหารวิชาการ</option>
       <option>กลุ่มบริหารงบประมาณ</option>
       <option>กลุ่มบริหารงานบุคคล</option>
       <option>กลุ่มกิจการนักเรียน</option>
       <option>กลุ่มบริหารทั่วไป</option>
-      <option>สำนักงานอำนวยการ</option>
-      <option value="others">อื่นๆ ระบุ</option>
+      <option value="others">อื่นๆ</option>
     </select>
-    <input type="text" id="departmentOther" placeholder="ระบุชื่อกลุ่มงาน" class="hidden">
-    <label>ผู้บันทึก</label>
-    <input type="text" id="user" disabled>
+
+    <input id="departmentOther" class="hidden" placeholder="ระบุ">
+    <input id="user" disabled>
     <button id="requestBtn">ขอเลขหนังสือ</button>
   </div>
 </div>

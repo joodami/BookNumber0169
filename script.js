@@ -1,64 +1,107 @@
-let userName = null;
-let phoneNumber = null;
-let timer = null;
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyjIwILkcHCnPbhBE9RSkHXjKGKRPfNQK2_5ZoPpxn24nj04Mu2MVU8qSK7MyNXVPEV/exec";
+let currentUser = null;
+let bookNumber = null;
 
-$('#btnLogin').click(() => {
-  const phone = $('#phone').val().trim();
-  if(!phone){ alert('กรุณากรอกหมายเลขโทรศัพท์'); return; }
+// Login
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const phone = document.getElementById("phone").value.trim();
+  if (!phone) return swal("กรุณากรอกหมายเลขโทรศัพท์");
 
-  google.script.run.withSuccessHandler((data)=>{
-    if(data.length > 0){
-      userName = data[0][1];
-      phoneNumber = data[0][0];
-      $('#user').val(userName);
-      $('#loginCard').addClass('invisible');
-      $('#formCard').removeClass('invisible');
-      startTimer();
-    } else {
-      swal("ผิดพลาด","ไม่พบผู้ใช้","error");
-    }
-  }).processForm(phone);
+  const res = await fetch(GAS_URL, {
+    method:"POST",
+    body: JSON.stringify({action:"login", phone}),
+    headers: {"Content-Type":"application/json"}
+  });
+  const data = await res.json();
+  if (!data.success) return swal(data.message);
+
+  currentUser = data.user;
+  document.getElementById("user").value = currentUser;
+  document.querySelector(".login-card").classList.add("hidden");
+  document.querySelector(".form-card").classList.remove("hidden");
+
+  startAutoClearTimer();
 });
 
-$('#btnRequest').click(() => {
-  $('#progress').removeClass('invisible');
-  google.script.run.withSuccessHandler((count)=>{
-    if(count>0){
-      swal("รอคิว","มีผู้กำลังขอเลขอยู่ กรุณารอ 5 นาที","warning");
-      $('#progress').addClass('invisible');
-      return;
-    }
-
-    const formData = {
-      birthday: $('#birthday').val(),
-      detail: $('#detail').val(),
-      detail1: $('#detail1').val(),
-      department: $('#department').val(),
-      user: userName
-    };
-
-    google.script.run.withSuccessHandler((newNum)=>{
-      swal("สำเร็จ", `เลขหนังสือออก = ที่ ศธ 04338.51/${newNum}`, "success");
-      $('#progress').addClass('invisible');
-      clearForm();
-    }).addNewRow(formData);
-
-  }).getOnlineCount();
+// Show/Hide "other department"
+document.getElementById("department").addEventListener("change", (e)=>{
+  document.getElementById("departmentOther").classList.toggle("hidden", e.target.value !== "others");
 });
 
-function clearForm(){
-  $('#birthday').val('');
-  $('#detail').val('');
-  $('#detail1').val('');
-  $('#department').val('');
+// Request Book Number
+document.getElementById("requestBtn").addEventListener("click", async () => {
+  if (!validateForm()) return;
+  swal({title:"กำลังรอคิว...", text:"โปรดรอสักครู่", buttons:false, closeOnClickOutside:false});
+  
+  // ดึงเลขหนังสือ
+  const res = await fetch(GAS_URL, {
+    method:"POST",
+    body: JSON.stringify({action:"getBookNumber"}),
+    headers: {"Content-Type":"application/json"}
+  });
+  const data = await res.json();
+  if (!data.success) return swal(data.message);
+
+  bookNumber = data.bookNumber;
+  const formData = {
+    bookNumber: bookNumber,
+    date: document.getElementById("date").value,
+    subject: document.getElementById("subject").value,
+    toDept: document.getElementById("toDept").value,
+    department: document.getElementById("department").value === "others" ? document.getElementById("departmentOther").value : document.getElementById("department").value,
+    user: currentUser
+  };
+
+  // Submit Form
+  const submitRes = await fetch(GAS_URL, {
+    method:"POST",
+    body: JSON.stringify({action:"submitForm", formData}),
+    headers: {"Content-Type":"application/json"}
+  });
+  const submitData = await submitRes.json();
+  if (!submitData.success) return swal(submitData.message);
+
+  swal(`✅ ขอเลขหนังสือสำเร็จ`, `เลขหนังสือออก: ที่ ศธ 04338.51/${bookNumber}`);
+  resetForm();
+});
+
+// Form Validation
+function validateForm() {
+  if(!document.getElementById("date").value ||
+     !document.getElementById("subject").value ||
+     !document.getElementById("toDept").value ||
+     !document.getElementById("department").value ||
+     (document.getElementById("department").value==="others" && !document.getElementById("departmentOther").value)
+  ) {
+    swal("กรุณากรอกข้อมูลให้ครบถ้วน");
+    return false;
+  }
+  return true;
 }
 
-function startTimer(){
-  if(timer) clearTimeout(timer);
-  timer = setTimeout(()=>{
-    swal("หมดเวลา","กรุณาเข้าสู่ระบบใหม่","warning");
-    $('#formCard').addClass('invisible');
-    $('#loginCard').removeClass('invisible');
-    google.script.run.clearOnlineUser(phoneNumber);
-  },5*60*1000);
+function resetForm(){
+  document.getElementById("date").value="";
+  document.getElementById("subject").value="";
+  document.getElementById("toDept").value="";
+  document.getElementById("department").value="";
+  document.getElementById("departmentOther").value="";
+  document.querySelector(".login-card").classList.remove("hidden");
+  document.querySelector(".form-card").classList.add("hidden");
+  currentUser=null;
+  bookNumber=null;
+}
+
+// Auto-clear user after 5 min
+function startAutoClearTimer(){
+  setTimeout(async ()=>{
+    if(currentUser){
+      await fetch(GAS_URL, {
+        method:"POST",
+        body: JSON.stringify({action:"submitForm", formData:{user:currentUser, bookNumber:"-expired"}}),
+        headers: {"Content-Type":"application/json"}
+      });
+      swal("⏰ หมดเวลาใช้งาน กรุณาเข้าสู่ระบบใหม่");
+      resetForm();
+    }
+  }, 5*60*1000);
 }

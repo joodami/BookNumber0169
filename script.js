@@ -1,86 +1,120 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyjIwILkcHCnPbhBE9RSkHXjKGKRPfNQK2_5ZoPpxn24nj04Mu2MVU8qSK7MyNXVPEV/exec";
 
+// ===== DOM =====
 const loginBtn = document.getElementById("loginBtn");
 const phoneInput = document.getElementById("phone");
 const userInput = document.getElementById("user");
 
-const formCard = document.querySelector(".form");
 const loginCard = document.querySelector(".login");
+const formCard = document.querySelector(".form");
 
-const dateEl = document.getElementById("date");
-const subjectEl = document.getElementById("subject");
-const toDeptEl = document.getElementById("toDept");
-const deptEl = document.getElementById("department");
-const deptOtherEl = document.getElementById("departmentOther");
+const dateInput = document.getElementById("date");
+const subjectInput = document.getElementById("subject");
+const toDeptInput = document.getElementById("toDept");
+const deptSelect = document.getElementById("department");
+const deptOtherInput = document.getElementById("departmentOther");
 const requestBtn = document.getElementById("requestBtn");
 
 let currentUser = null;
 
-// ---- Login ----
+// ===== Login =====
 loginBtn.onclick = async () => {
   try {
     const phoneVal = phoneInput.value.trim();
-    if (!phoneVal) return swal("กรุณากรอกหมายเลขโทรศัพท์");
+    if (!phoneVal) {
+      swal("กรุณากรอกหมายเลขโทรศัพท์");
+      return;
+    }
 
     const res = await fetch(GAS_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "login", phone: phoneVal })
+      body: JSON.stringify({
+        action: "login",
+        phone: phoneVal
+      })
     });
 
     const text = await res.text();
     console.log("RAW RESPONSE:", text);
-    const data = JSON.parse(text);
 
-    if (!data.success) return swal(data.message);
+    const data = JSON.parse(text);
+    if (!data.success) {
+      swal(data.message);
+      return;
+    }
 
     currentUser = data.user;
     userInput.value = currentUser;
 
     loginCard.classList.add("hidden");
     formCard.classList.remove("hidden");
+
   } catch (err) {
     console.error(err);
-    swal("เชื่อมต่อระบบไม่ได้");
+    swal("ไม่สามารถเชื่อมต่อระบบได้");
   }
 };
 
-// ---- Dept other ----
-deptEl.onchange = () => {
-  deptOtherEl.classList.toggle("hidden", deptEl.value !== "others");
+// ===== Department other =====
+deptSelect.onchange = () => {
+  deptOtherInput.classList.toggle("hidden", deptSelect.value !== "others");
 };
 
-// ---- Request number ----
+// ===== Request Book Number =====
 requestBtn.onclick = async () => {
-  if (!dateEl.value || !subjectEl.value || !toDeptEl.value || !deptEl.value) {
-    return swal("กรุณากรอกข้อมูลให้ครบถ้วน");
+  if (
+    !dateInput.value ||
+    !subjectInput.value ||
+    !toDeptInput.value ||
+    !deptSelect.value ||
+    (deptSelect.value === "others" && !deptOtherInput.value)
+  ) {
+    swal("กรุณากรอกข้อมูลให้ครบถ้วน");
+    return;
   }
 
-  swal({ title:"กำลังออกเลข...", buttons:false, closeOnClickOutside:false });
+  swal({
+    title: "กำลังออกเลข...",
+    buttons: false,
+    closeOnClickOutside: false
+  });
 
+  // lock + get number
   const lockRes = await fetch(GAS_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action:"getBookNumber", user: currentUser })
+    body: JSON.stringify({
+      action: "getBookNumber",
+      user: currentUser
+    })
   });
+
   const lockText = await lockRes.text();
   const lockData = JSON.parse(lockText);
 
-  if (!lockData.success) return swal(lockData.message);
+  if (!lockData.success) {
+    swal(lockData.message);
+    return;
+  }
 
   const bookNo = lockData.bookNumber;
 
+  // submit
   await fetch(GAS_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      action:"submitForm",
-      formData:{
+      action: "submitForm",
+      formData: {
         bookNumber: bookNo,
-        date: dateEl.value,
-        subject: subjectEl.value,
-        toDept: toDeptEl.value,
-        department: deptEl.value==="others" ? deptOtherEl.value : deptEl.value,
+        date: dateInput.value,
+        subject: subjectInput.value,
+        toDept: toDeptInput.value,
+        department:
+          deptSelect.value === "others"
+            ? deptOtherInput.value
+            : deptSelect.value,
         user: currentUser
       }
     })

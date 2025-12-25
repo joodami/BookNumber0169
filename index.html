@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ระบบขอเลขหนังสือราชการออนไลน์</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <img class="banner" src="https://firebasestorage.googleapis.com/v0/b/banner-web-app.appspot.com/o/banner%20web%20app.jpg?alt=media" alt="banner">
+    
+    <div id="loginDiv" class="card">
+      <h2>เข้าสู่ระบบ</h2>
+      <input type="text" id="phone" placeholder="กรอกหมายเลขโทรศัพท์">
+      <button onclick="login()">เข้าสู่ระบบ</button>
+    </div>
+
+    <div id="formDiv" class="card invisible">
+      <h2>บันทึกรายละเอียดหนังสือออก</h2>
+      <label>ลงวันที่</label>
+      <input type="date" id="date" required>
+      <label>เรื่อง</label>
+      <textarea id="detail"></textarea>
+      <label>ถึงหน่วยงาน</label>
+      <textarea id="toDept"></textarea>
+      <label>กลุ่มงาน</label>
+      <input type="text" id="group">
+      <label>ผู้บันทึก</label>
+      <input type="text" id="user" disabled>
+      <button onclick="requestBook()">ขอเลขหนังสือ</button>
+      <div id="queueStatus"></div>
+    </div>
+  </div>
+
+<script>
+var phone, nameUser;
+
+function login() {
+  phone = document.getElementById('phone').value;
+  if(!phone){ alert("กรุณากรอกหมายเลขโทรศัพท์"); return; }
+  google.script.run.withSuccessHandler(function(res){
+    if(res.success){
+      nameUser = res.name;
+      document.getElementById('user').value = nameUser;
+      document.getElementById('loginDiv').classList.add('invisible');
+      document.getElementById('formDiv').classList.remove('invisible');
+      updateQueue();
+    } else {
+      alert("หมายเลขโทรศัพท์ไม่ถูกต้อง");
+    }
+  }).loginUser(phone);
+}
+
+// update queue every 5 seconds
+function updateQueue(){
+  google.script.run.withSuccessHandler(function(res){
+    if(res.status==="active"){
+      document.getElementById('queueStatus').innerText = "คุณสามารถขอเลขหนังสือได้";
+    } else if(res.status==="waiting"){
+      document.getElementById('queueStatus').innerText = "คุณอยู่คิวที่ "+res.position+" รอคิว...";
+    } else {
+      document.getElementById('queueStatus').innerText = "";
+    }
+  }).getQueueStatus(phone);
+
+  // เคลียร์ผู้ใช้เกิน 5 นาที
+  google.script.run.clearExpiredUsers();
+
+  setTimeout(updateQueue,5000);
+}
+
+function requestBook(){
+  var formData = {
+    detail: document.getElementById('detail').value,
+    toDept: document.getElementById('toDept').value,
+    group: document.getElementById('group').value,
+    user: nameUser
+  };
+  swal("กำลังออกเลขหนังสือ...", {buttons:false, timer:1500});
+  google.script.run.withSuccessHandler(function(res){
+    if(res.success){
+      swal({
+        title:"✅ ขอเลขสำเร็จ",
+        text:"เลขหนังสือออก = ที่ ศธ "+res.bookNo,
+        button:"ตกลง"
+      });
+      // clear fields
+      document.getElementById('detail').value="";
+      document.getElementById('toDept').value="";
+      document.getElementById('group').value="";
+    } else {
+      swal({text:res.msg, icon:"error"});
+    }
+  }).requestNumber(phone, formData);
+}
+</script>
+</body>
+</html>

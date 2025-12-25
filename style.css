@@ -1,6 +1,6 @@
-body { font-family: sans-serif; background:#eef2f5; }
-.container { max-width:600px; margin:auto; padding:2rem; }
-.card { background:#fff; padding:1.5rem; border-radius:10px; margin-bottom:1rem; }
-input, textarea, select, button { width:100%; margin:.5rem 0; padding:.5rem; }
+body { font-family: sans-serif; background:#edf2f6; }
+.container { max-width:700px; margin:auto; padding:2rem; }
+.card { background:#fff; padding:1.5rem; border-radius:12px; margin-bottom:1rem; }
+input, textarea, select, button { width:100%; padding:.5rem; margin:.4rem 0; }
 button { background:#4682B4; color:#fff; border:none; border-radius:6px; }
 .hidden { display:none; }

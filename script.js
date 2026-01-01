@@ -98,6 +98,13 @@ function validateForm(){
     detailEl.classList.remove("is-invalid");
   }
 
+    if(!detail1El.value.trim()){
+    detail1El.classList.add("is-invalid");
+    valid = false;
+  } else {
+    detail1El.classList.remove("is-invalid");
+  }
+
   if(!departmentEl.value){
     departmentEl.classList.add("is-invalid");
     valid = false;
@@ -216,7 +223,7 @@ function submitData(){
       action:"addRecord",
       birthday: birthdayEl.value,
       detail: detailEl.value,
-      detail1: detailEl.value,
+      detail1: detail1El.value,
       department: departmentValue,
       user: userEl.value
     }).then(res=>{

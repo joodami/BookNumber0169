@@ -1,102 +1,286 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyjIwILkcHCnPbhBE9RSkHXjKGKRPfNQK2_5ZoPpxn24nj04Mu2MVU8qSK7MyNXVPEV/exec";
 
-const loginBtn = document.getElementById("loginBtn");
-const phoneInput = document.getElementById("phone");
-const userInput = document.getElementById("user");
+const passwordEl = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+const userEl = document.getElementById("user");
+const userformEl = document.getElementById("userform");
+const birthdayEl = document.getElementById("birthday");
+const detailEl = document.getElementById("detail");
+const detailEl = document.getElementById("detail1");
+const departmentEl = document.getElementById("department");
+const departmentOtherEl = document.getElementById("departmentOther");
+const btnLoginEl = document.getElementById("btn-login");
+const btnSubmitEl = document.getElementById("btn-submit");
+const resultModalEl = document.getElementById("resultModal");
+const modalLoadingEl = document.getElementById("modal-loading");
+const modalSuccessEl = document.getElementById("modal-success");
+const modalErrorEl = document.getElementById("modal-error");
+const showBooknoEl = document.getElementById("show-bookno");
+const dashTotalEl = document.getElementById("dash-total");
+const dashTodayEl = document.getElementById("dash-today");
+const dashOnlineEl = document.getElementById("dash-online");
+const loginSpinnerEl = document.getElementById("loginSpinner");
 
-const loginCard = document.querySelector(".login");
-const formCard = document.querySelector(".form");
+// ------------------ Department Other ------------------
+departmentEl.addEventListener("change", () => {
+  if (departmentEl.value === "อื่นๆ") {
+    departmentOtherEl.classList.remove("d-none");
+  } else {
+    departmentOtherEl.classList.add("d-none");
+    departmentOtherEl.value = "";
+    departmentOtherEl.classList.remove("is-invalid");
+  }
+});
 
-const dateEl = document.getElementById("date");
-const subjectEl = document.getElementById("subject");
-const toDeptEl = document.getElementById("toDept");
-const deptEl = document.getElementById("department");
-const deptOtherEl = document.getElementById("departmentOther");
-const requestBtn = document.getElementById("requestBtn");
+// ------------------ Helper ------------------
+function post(data){
+  return fetch(GAS_URL,{
+    method:"POST",
+    body:new URLSearchParams(data)
+  }).then(r=>r.json());
+}
 
-let currentUser = null;
+// ------------------ Login ------------------
+function login(){
+  const pass = passwordEl.value.trim();
+  if(!pass){
+    passwordEl.classList.add("is-invalid");
+    return;
+  } else {
+    passwordEl.classList.remove("is-invalid");
+  }
 
-// ================= Login =================
-loginBtn.onclick = async () => {
-  try {
-    const phoneVal = phoneInput.value.trim();
-    if (!phoneVal) return swal("กรุณากรอกหมายเลขโทรศัพท์");
+  loginSpinnerEl.classList.remove("d-none");
 
-    const body = new URLSearchParams();
-    body.append("action", "login");
-    body.append("phone", phoneVal);
+  post({action:"login", password:pass}).then(res=>{
+    loginSpinnerEl.classList.add("d-none");
 
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      body: body
+    if(res.length){
+      userEl.value = res[0][1];
+      userformEl.classList.remove("invisible");
+      document.body.classList.add("has-userform");
+      post({action:"addOnline", name:res[0][1]});
+    } else {
+      passwordEl.classList.add("is-invalid");
+      document.getElementById("password-feedback").innerText = "ข้อมูลไม่ถูกต้อง";
+    }
+  }).catch(()=>{
+    loginSpinnerEl.classList.add("d-none");
+    alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+  });
+}
+
+// ------------------ Toggle Password ------------------
+togglePassword.addEventListener("click", () => {
+  const type = passwordEl.type === "password" ? "text" : "password";
+  passwordEl.type = type;
+
+  const icon = togglePassword.querySelector("i");
+  icon.classList.toggle("bi-eye");
+  icon.classList.toggle("bi-eye-slash");
+});
+
+// ------------------ Validate Form ------------------
+function validateForm(){
+  let valid = true;
+
+  if(!birthdayEl.value){
+    birthdayEl.classList.add("is-invalid");
+    valid = false;
+  } else {
+    birthdayEl.classList.remove("is-invalid");
+  }
+
+  if(!detailEl.value.trim()){
+    detailEl.classList.add("is-invalid");
+    valid = false;
+  } else {
+    detailEl.classList.remove("is-invalid");
+  }
+
+  if(!departmentEl.value){
+    departmentEl.classList.add("is-invalid");
+    valid = false;
+  } else {
+    departmentEl.classList.remove("is-invalid");
+  }
+
+  if(departmentEl.value === "อื่นๆ"){
+    if(!departmentOtherEl.value.trim()){
+      departmentOtherEl.classList.add("is-invalid");
+      valid = false;
+    } else {
+      departmentOtherEl.classList.remove("is-invalid");
+    }
+  }
+
+  return valid;
+}
+
+// ------------------ Modal / Session ------------------
+function showSessionExpiredAndReset(){
+  const modal = new bootstrap.Modal(resultModalEl,{
+    backdrop:'static',
+    keyboard:false
+  });
+
+  modalLoadingEl.classList.add("d-none");
+  modalSuccessEl.classList.add("d-none");
+  modalErrorEl.classList.remove("d-none");
+
+  modalErrorEl.querySelector("h5").innerText = "⏰ ใช้เวลาเกิน 5 นาที";
+  modalErrorEl.querySelector("p").innerText = "กรุณาเข้าสู่ระบบใหม่";
+
+  modalErrorEl.querySelector("button").onclick = () => {
+    modal.hide();
+    resetToLogin();
+  };
+
+  modal.show();
+}
+
+function modalLoading(){
+  modalLoadingEl.classList.remove("d-none");
+  modalSuccessEl.classList.add("d-none");
+  modalErrorEl.classList.add("d-none");
+}
+
+function showSuccess(bookno){
+  modalLoadingEl.classList.add("d-none");
+  modalSuccessEl.classList.remove("d-none");
+  showBooknoEl.innerText = `เลขหนังสือออก = ศธ 04338.51/ ${bookno}`;
+}
+
+function showQueueError(){
+  const modal = new bootstrap.Modal(resultModalEl);
+
+  modalLoadingEl.classList.add("d-none");
+  modalSuccessEl.classList.add("d-none");
+  modalErrorEl.classList.remove("d-none");
+
+  modalErrorEl.querySelector("h5").innerText = "กำจัดผู้ใช้งานครั้งละ 1 คน";
+  modalErrorEl.querySelector("p").innerText = "กรุณารอ 5 นาที แล้วเข้าสู่ระบบใหม่";
+
+  modalErrorEl.querySelector("button").onclick = () => {
+    modal.hide();
+    resetToLogin();
+  };
+
+  modal.show();
+}
+
+// ------------------ Reset ------------------
+function resetToLogin(){
+  birthdayEl.value = "";
+  detailEl.value = "";
+  detail1El.value = "";
+  departmentEl.value = "";
+  departmentOtherEl.value = "";
+  departmentOtherEl.classList.add("d-none");
+  passwordEl.value = "";
+  userformEl.classList.add("invisible");
+
+  document.body.classList.remove("has-userform");
+
+  if(userEl.value){
+    post({action:"deleteOnline", name:userEl.value});
+  }
+  userEl.value = "";
+}
+
+// ------------------ Submit ------------------
+function submitData(){
+  if(!validateForm()) return;
+
+  const departmentValue =
+    departmentEl.value === "อื่นๆ"
+      ? departmentOtherEl.value.trim()
+      : departmentEl.value;
+
+  const modal = new bootstrap.Modal(resultModalEl,{
+    backdrop:'static',
+    keyboard:false
+  });
+
+  modal.show();
+  modalLoading();
+
+  post({action:"checkOnline", name:userEl.value}).then(res=>{
+    if(res.expired){
+      modal.hide();
+      showSessionExpiredAndReset();
+      return;
+    }
+
+    post({
+      action:"addRecord",
+      birthday: birthdayEl.value,
+      detail: detailEl.value,
+      detail1: detailEl.value,
+      department: departmentValue,
+      user: userEl.value
+    }).then(res=>{
+      if(res.error === "expired"){
+        modal.hide();
+        showSessionExpiredAndReset();
+        return;
+      }
+
+      if(res.error === "queue"){
+        modal.hide();
+        showQueueError();
+        return;
+      }
+
+      showSuccess(res.bookno);
+      resetToLogin();
     });
+  });
+}
 
-    const data = JSON.parse(await res.text());
-    if (!data.success) return swal(data.message);
+// ------------------ Dashboard ------------------
+function loadDashboard(){
+  post({action:"dashboard"}).then(d=>{
+    dashTotalEl.innerText = d.total;
+    dashTodayEl.innerText = d.today;
+    dashOnlineEl.innerText = d.online;
+  });
+}
 
-    currentUser = data.user;
-    userInput.value = currentUser;
+function checkSession(){
+  if(!userEl.value) return;
+  if(document.querySelector(".modal.show")) return;
 
-    loginCard.classList.add("hidden");
-    formCard.classList.remove("hidden");
+  post({action:"checkOnline", name:userEl.value}).then(res=>{
+    if(res.expired){
+      showSessionExpiredAndReset();
+    }
+  });
+}
 
-  } catch (e) {
-    console.error(e);
-    swal("เชื่อมต่อระบบไม่ได้");
-  }
-};
+// ------------------ Event ------------------
+document.addEventListener("DOMContentLoaded",()=>{
+  loadDashboard();
+  setInterval(loadDashboard,30000);
 
-// ================= Department other =================
-deptEl.onchange = () => {
-  deptOtherEl.classList.toggle("hidden", deptEl.value !== "others");
-};
+  btnLoginEl.onclick = login;
+  btnSubmitEl.onclick = submitData;
 
-// ================= Request Book Number =================
-requestBtn.onclick = async () => {
-  if (
-    !dateEl.value ||
-    !subjectEl.value ||
-    !toDeptEl.value ||
-    !deptEl.value ||
-    (deptEl.value === "others" && !deptOtherEl.value)
-  ) {
-    return swal("กรุณากรอกข้อมูลให้ครบถ้วน");
-  }
-
-  swal({ title: "กำลังออกเลข...", buttons: false });
-
-  // ---- lock + get number ----
-  const lockBody = new URLSearchParams();
-  lockBody.append("action", "getBookNumber");
-  lockBody.append("user", currentUser);
-
-  const lockRes = await fetch(GAS_URL, {
-    method: "POST",
-    body: lockBody
+  passwordEl.addEventListener("keydown", e => {
+    if(e.key === "Enter") login();
   });
 
-  const lockData = JSON.parse(await lockRes.text());
-  if (!lockData.success) return swal(lockData.message);
+  setInterval(checkSession, 10000);
+});
 
-  const bookNo = lockData.bookNumber;
-
-  // ---- submit ----
-  const submitBody = new URLSearchParams();
-  submitBody.append("action", "submitForm");
-  submitBody.append("formData", JSON.stringify({
-    bookNumber: bookNo,
-    date: dateEl.value,
-    subject: subjectEl.value,
-    toDept: toDeptEl.value,
-    department: deptEl.value === "others" ? deptOtherEl.value : deptEl.value,
-    user: currentUser
-  }));
-
-  await fetch(GAS_URL, {
-    method: "POST",
-    body: submitBody
-  });
-
-  swal("สำเร็จ", `เลขหนังสือออก\nที่ ศธ 04338.51/${bookNo}`);
-  location.reload();
-};
+window.addEventListener("beforeunload", () => {
+  if(userEl.value){
+    navigator.sendBeacon(
+      GAS_URL,
+      new URLSearchParams({
+        action:"deleteOnline",
+        name:userEl.value
+      })
+    );
+  }
+});

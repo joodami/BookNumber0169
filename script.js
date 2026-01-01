@@ -155,7 +155,7 @@ function modalLoading(){
 function showSuccess(bookno){
   modalLoadingEl.classList.add("d-none");
   modalSuccessEl.classList.remove("d-none");
-  showBooknoEl.innerText = `เลขหนังสือออก = ศธ 04338.51/ ${bookno}`;
+  showBooknoEl.innerText = `เลขหนังสือออก = ศธ 04338.51/${bookno}`;
 }
 
 function showQueueError(){

@@ -185,7 +185,8 @@ function resetToLogin(){
   departmentOtherEl.value = "";
   departmentOtherEl.classList.add("d-none");
   passwordEl.value = "";
-  userformEl.classList.add("invisible");
+  userformEl.classList.add("d-none");    // <--- เปลี่ยนให้เหมือนกับ HTML
+  userformEl.classList.remove("invisible"); // ล้างค่าเก่าออกด้วยเพื่อความชัวร์
 
   document.body.classList.remove("has-userform");
 

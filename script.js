@@ -57,7 +57,7 @@ function login(){
 
     if(res.length){
       userEl.value = res[0][1];
-      userformEl.classList.remove("invisible");
+      userformEl.classList.remove("d-none");
       document.body.classList.add("has-userform");
       post({action:"addOnline", name:res[0][1]});
     } else {

@@ -27,7 +27,7 @@
             flex-direction: column;
         }
 
-        /* --- Header Standard --- */
+        /* --- Header --- */
         .app-header {
             background: #ffffff;
             text-align: center;
@@ -40,14 +40,8 @@
         .app-title { font-size: 1.6rem; font-weight: 700; color: var(--primary); margin: 0; }
         .app-subtitle { font-size: 0.9rem; color: #64748b; font-weight: 600; }
 
-        @media (max-width: 768px) {
-            .app-title { font-size: 1.2rem; }
-            .app-subtitle { font-size: 0.75rem; }
-            .school-logo { height: 40px; }
-        }
-
         /* --- Dashboard UI --- */
-        .dash-card { border: none; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .dash-card { border: none; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); background: white; }
         .dashboard-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .dash-item { text-align: center; padding: 10px; border-right: 1px solid #eee; }
         .dash-item:last-child { border-right: none; }
@@ -58,13 +52,12 @@
         /* --- Form Design --- */
         .form-card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); background: white; overflow: hidden; }
         .card-header-custom { background: var(--main-gradient); color: white; padding: 15px; font-weight: 600; text-align: center; }
-        
         .form-control, .form-select { border-radius: 12px; padding: 12px; border: 2px solid #f1f5f9; background: #f8fafc; }
         .form-control:focus { border-color: var(--accent); box-shadow: none; background: #fff; }
         label { font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #475569; }
 
-        .btn-primary-custom { background: var(--primary); border: none; border-radius: 12px; padding: 12px; font-weight: 600; transition: 0.3s; }
-        .btn-primary-custom:hover { background: var(--accent); transform: translateY(-2px); }
+        .btn-primary-custom { background: var(--primary); border: none; border-radius: 12px; padding: 12px; font-weight: 600; transition: 0.3s; color: white; }
+        .btn-primary-custom:hover { background: var(--accent); transform: translateY(-2px); color: white; }
 
         /* --- Modal --- */
         .modal-content { border-radius: 25px; border: none; }
@@ -73,7 +66,6 @@
         footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.8rem; color: #94a3b8; }
     </style>
 </head>
-
 <body>
 
 <header class="app-header">
@@ -83,7 +75,6 @@
 </header>
 
 <div class="container max-width-container pb-4">
-    
     <div class="card dash-card mb-4">
         <div class="card-body">
             <div class="dashboard-row">
@@ -116,7 +107,7 @@
                     <i class="bi bi-eye"></i>
                 </span>
             </div>
-            <button class="btn btn-primary btn-primary-custom w-100" id="btn-login" onclick="login()">เข้าสู่ระบบ</button>
+            <button class="btn btn-primary-custom w-100" id="btn-login" onclick="login()">เข้าสู่ระบบ</button>
             <div id="loginSpinner" class="d-none mt-3 text-primary">
                 <div class="spinner-border spinner-border-sm"></div> <small>กำลังตรวจสอบ...</small>
             </div>
@@ -150,15 +141,15 @@
                     <input id="departmentOther" class="form-control mt-2 d-none" placeholder="ระบุชื่อกลุ่มงานของคุณ">
                 </div>
                 <div class="col-12">
-                    <label>เรื่อง</label>
+                    <label>เรื่อง (รายละเอียดหนังสือ)</label>
                     <textarea id="detail" class="form-control" rows="2" placeholder="ตัวอย่าง: ขออนุมัติจัดโครงการ..."></textarea>
                 </div>
                 <div class="col-12">
-                    <label>เรียน</label>
+                    <label>เรียน (ถึงใคร)</label>
                     <input id="detail1" class="form-control" placeholder="ตัวอย่าง: ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์">
                 </div>
                 <div class="col-12 mt-4 text-center">
-                    <button class="btn btn-success btn-primary-custom w-100 py-3" style="background:#15803d" id="btn-submit" onclick="submitData()">
+                    <button class="btn btn-primary-custom w-100 py-3" style="background:#15803d" id="btn-submit" onclick="submitData()">
                         <i class="bi bi-file-earmark-plus me-2"></i> ยืนยันขอเลขหนังสือออก
                     </button>
                 </div>
@@ -199,7 +190,7 @@
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyjIwILkcHCnPbhBE9RSkHXjKGKRPfNQK2_5ZoPpxn24nj04Mu2MVU8qSK7MyNXVPEV/exec";
     const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
-
+    
     // UI Elements
     const deptSelect = document.getElementById("department");
     const deptOther = document.getElementById("departmentOther");
@@ -207,13 +198,13 @@
     const loginSection = document.getElementById("loginSection");
     const userform = document.getElementById("userform");
 
-    // Toggle Other Department
+    // Toggle Other Dept
     deptSelect.onchange = () => {
         if (deptSelect.value === "อื่นๆ") deptOther.classList.remove("d-none");
         else { deptOther.classList.add("d-none"); deptOther.value = ""; }
     };
 
-    // Toggle Eye Icon
+    // Toggle Eye Password
     document.getElementById("togglePassword").onclick = function() {
         const type = passwordInput.type === "password" ? "text" : "password";
         passwordInput.type = type;
@@ -221,38 +212,44 @@
         this.querySelector("i").classList.toggle("bi-eye-slash");
     };
 
+    // [New] รองรับการกด Enter ในช่องรหัสผ่าน
+    passwordInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            login();
+        }
+    });
+
     async function post(data) {
         const response = await fetch(GAS_URL, { method: "POST", body: new URLSearchParams(data) });
         return response.json();
     }
 
-    // ------------------ Reset & Logout ------------------
+    // ฟังก์ชัน Reset ระบบกลับสู่หน้า Login
     function resetToLogin() {
-        // Hide Modal
         resultModal.hide();
         
-        // Reset Inputs
-        document.getElementById("birthday").valueAsDate = new Date();
+        // ล้างค่าในฟอร์ม
         document.getElementById("detail").value = "";
         document.getElementById("detail1").value = "";
         deptSelect.value = "";
         deptOther.value = "";
         deptOther.classList.add("d-none");
         passwordInput.value = "";
-
+        
         // Backend Logout
         const userName = document.getElementById("user").value;
         if(userName) {
             post({ action: "deleteOnline", name: userName });
         }
         
-        // Toggle UI
+        // สลับ UI
         userform.classList.add("d-none");
         loginSection.classList.remove("d-none");
         document.getElementById("user").value = "";
+        document.getElementById('birthday').valueAsDate = new Date();
     }
 
-    // ------------------ Login ------------------
+    // ฟังก์ชัน Login
     function login() {
         const pass = passwordInput.value.trim();
         if(!pass) return Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสผ่านค่ะ', 'warning');
@@ -271,7 +268,7 @@
         });
     }
 
-    // ------------------ Submit Data ------------------
+    // ฟังก์ชันส่งข้อมูลขอเลข
     function submitData() {
         const birthday = document.getElementById("birthday").value;
         const detail = document.getElementById("detail").value;
@@ -295,20 +292,15 @@
             document.getElementById("modal-loading").classList.add("d-none");
             if (res.error) {
                 document.getElementById("modal-error").classList.remove("d-none");
-                document.getElementById("error-msg").innerText = 
-                    res.error === "expired" ? "Session หมดอายุ (เกิน 5 นาที)" : "มีคิวอื่นค้างอยู่ กรุณาลองใหม่ในภายหลัง";
+                document.getElementById("error-msg").innerText = res.error === "expired" ? "Session หมดอายุ (เกิน 5 นาที)" : "มีคิวอื่นค้างอยู่ กรุณาลองใหม่ในภายหลัง";
             } else {
                 document.getElementById("modal-success").classList.remove("d-none");
                 document.getElementById("show-bookno").innerText = `ศธ 04338.51/${res.bookno}`;
             }
-        }).catch(err => {
-            document.getElementById("modal-loading").classList.add("d-none");
-            document.getElementById("modal-error").classList.remove("d-none");
-            document.getElementById("error-msg").innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
         });
     }
 
-    // ------------------ Dashboard & Monitor ------------------
+    // โหลด Dashboard
     function loadDashboard() {
         post({ action: "dashboard" }).then(d => {
             document.getElementById("dash-total").innerText = d.total;
@@ -317,7 +309,7 @@
         });
     }
 
-    // Check session every 10 sec (ตามต้นฉบับ)
+    // ตรวจสอบความเคลื่อนไหว (Session Timeout 5 mins)
     function checkSession() {
         const userName = document.getElementById("user").value;
         if(!userName) return;
@@ -336,12 +328,12 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         loadDashboard();
-        setInterval(loadDashboard, 30000);
-        setInterval(checkSession, 10000);
+        setInterval(loadDashboard, 30000); // อัปเดตยอดทุก 30 วิ
+        setInterval(checkSession, 10000);  // เช็คออนไลน์ทุก 10 วิ (Logic เดิม)
         document.getElementById('birthday').valueAsDate = new Date();
     });
 
-    // Handle Closing Page
+    // เมื่อปิดหน้าจอ ให้ลบชื่อออกจากสถานะออนไลน์ทันที
     window.addEventListener("beforeunload", () => {
         const userName = document.getElementById("user").value;
         if(userName){

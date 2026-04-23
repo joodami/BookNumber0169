@@ -150,11 +150,11 @@
                     <input id="departmentOther" class="form-control mt-2 d-none" placeholder="ระบุชื่อกลุ่มงานของคุณ">
                 </div>
                 <div class="col-12">
-                    <label>เรื่อง (รายละเอียดหนังสือ)</label>
+                    <label>เรื่อง</label>
                     <textarea id="detail" class="form-control" rows="2" placeholder="ตัวอย่าง: ขออนุมัติจัดโครงการ..."></textarea>
                 </div>
                 <div class="col-12">
-                    <label>เรียน (ถึงใคร)</label>
+                    <label>เรียน</label>
                     <input id="detail1" class="form-control" placeholder="ตัวอย่าง: ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์">
                 </div>
                 <div class="col-12 mt-4 text-center">
@@ -171,7 +171,7 @@
     <div>© 2026 ระบบขอเลขหนังสือออก | งานสารบรรณโรงเรียนพิมานพิทยาสรรค์</div>
 </footer>
 
-<div class="modal fade" id="resultModal" data-bs-backdrop="static">
+<div class="modal fade" id="resultModal" data-bs-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content p-4 text-center">
             <div id="modal-loading">
@@ -183,13 +183,13 @@
                 <i class="bi bi-check-circle-fill text-success modal-icon"></i>
                 <h4 class="fw-bold">ออกเลขสำเร็จ!</h4>
                 <div class="alert alert-primary my-3 py-3 fs-5 fw-bold" id="show-bookno"></div>
-                <button class="btn btn-primary w-100 py-2 rounded-3" data-bs-dismiss="modal">ตกลง</button>
+                <button class="btn btn-primary w-100 py-2 rounded-3" onclick="resetToLogin()">ตกลง (กลับหน้าหลัก)</button>
             </div>
             <div id="modal-error" class="d-none">
                 <i class="bi bi-exclamation-triangle-fill text-danger modal-icon"></i>
                 <h5 id="error-title">เกิดข้อผิดพลาด</h5>
                 <p id="error-msg"></p>
-                <button class="btn btn-secondary w-100" data-bs-dismiss="modal">ปิด</button>
+                <button class="btn btn-secondary w-100" onclick="resetToLogin()">ปิดและลองใหม่</button>
             </div>
         </div>
     </div>
@@ -204,6 +204,8 @@
     const deptSelect = document.getElementById("department");
     const deptOther = document.getElementById("departmentOther");
     const passwordInput = document.getElementById("password");
+    const loginSection = document.getElementById("loginSection");
+    const userform = document.getElementById("userform");
 
     // Toggle Other Department
     deptSelect.onchange = () => {
@@ -224,6 +226,33 @@
         return response.json();
     }
 
+    // ------------------ Reset & Logout ------------------
+    function resetToLogin() {
+        // Hide Modal
+        resultModal.hide();
+        
+        // Reset Inputs
+        document.getElementById("birthday").valueAsDate = new Date();
+        document.getElementById("detail").value = "";
+        document.getElementById("detail1").value = "";
+        deptSelect.value = "";
+        deptOther.value = "";
+        deptOther.classList.add("d-none");
+        passwordInput.value = "";
+
+        // Backend Logout
+        const userName = document.getElementById("user").value;
+        if(userName) {
+            post({ action: "deleteOnline", name: userName });
+        }
+        
+        // Toggle UI
+        userform.classList.add("d-none");
+        loginSection.classList.remove("d-none");
+        document.getElementById("user").value = "";
+    }
+
+    // ------------------ Login ------------------
     function login() {
         const pass = passwordInput.value.trim();
         if(!pass) return Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสผ่านค่ะ', 'warning');
@@ -233,8 +262,8 @@
             document.getElementById("loginSpinner").classList.add("d-none");
             if (res.length) {
                 document.getElementById("user").value = res[0][1];
-                document.getElementById("loginSection").classList.add("d-none");
-                document.getElementById("userform").classList.remove("d-none");
+                loginSection.classList.add("d-none");
+                userform.classList.remove("d-none");
                 post({ action: "addOnline", name: res[0][1] });
             } else {
                 Swal.fire('ล้มเหลว', 'รหัสผ่านไม่ถูกต้องค่ะ', 'error');
@@ -242,15 +271,17 @@
         });
     }
 
+    // ------------------ Submit Data ------------------
     function submitData() {
-        // Validation
         const birthday = document.getElementById("birthday").value;
         const detail = document.getElementById("detail").value;
         const detail1 = document.getElementById("detail1").value;
         const dept = deptSelect.value === "อื่นๆ" ? deptOther.value : deptSelect.value;
         const user = document.getElementById("user").value;
 
-        if (!birthday || !detail || !detail1 || !dept) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่องค่ะ', 'warning');
+        if (!birthday || !detail || !detail1 || !dept) {
+            return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่องค่ะ', 'warning');
+        }
 
         resultModal.show();
         document.getElementById("modal-loading").classList.remove("d-none");
@@ -261,21 +292,23 @@
             action: "addRecord",
             birthday, detail, detail1, department: dept, user
         }).then(res => {
+            document.getElementById("modal-loading").classList.add("d-none");
             if (res.error) {
-                document.getElementById("modal-loading").classList.add("d-none");
                 document.getElementById("modal-error").classList.remove("d-none");
-                document.getElementById("error-msg").innerText = res.error === "expired" ? "Session หมดอายุ (5 นาที)" : "มีคิวอื่นค้างอยู่ กรุณาลองใหม่ใน 5 นาที";
+                document.getElementById("error-msg").innerText = 
+                    res.error === "expired" ? "Session หมดอายุ (เกิน 5 นาที)" : "มีคิวอื่นค้างอยู่ กรุณาลองใหม่ในภายหลัง";
             } else {
-                document.getElementById("modal-loading").classList.add("d-none");
                 document.getElementById("modal-success").classList.remove("d-none");
                 document.getElementById("show-bookno").innerText = `ศธ 04338.51/${res.bookno}`;
-                // Reset Form
-                document.getElementById("detail").value = "";
-                document.getElementById("detail1").value = "";
             }
+        }).catch(err => {
+            document.getElementById("modal-loading").classList.add("d-none");
+            document.getElementById("modal-error").classList.remove("d-none");
+            document.getElementById("error-msg").innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
         });
     }
 
+    // ------------------ Dashboard & Monitor ------------------
     function loadDashboard() {
         post({ action: "dashboard" }).then(d => {
             document.getElementById("dash-total").innerText = d.total;
@@ -284,11 +317,36 @@
         });
     }
 
+    // Check session every 10 sec (ตามต้นฉบับ)
+    function checkSession() {
+        const userName = document.getElementById("user").value;
+        if(!userName) return;
+        
+        post({ action: "checkOnline", name: userName }).then(res => {
+            if(res.expired) {
+                resultModal.show();
+                document.getElementById("modal-loading").classList.add("d-none");
+                document.getElementById("modal-success").classList.add("d-none");
+                document.getElementById("modal-error").classList.remove("d-none");
+                document.getElementById("error-title").innerText = "⏰ หมดเวลาใช้งาน";
+                document.getElementById("error-msg").innerText = "กรุณาเข้าสู่ระบบใหม่";
+            }
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         loadDashboard();
         setInterval(loadDashboard, 30000);
-        // Set default date to today
+        setInterval(checkSession, 10000);
         document.getElementById('birthday').valueAsDate = new Date();
+    });
+
+    // Handle Closing Page
+    window.addEventListener("beforeunload", () => {
+        const userName = document.getElementById("user").value;
+        if(userName){
+            navigator.sendBeacon(GAS_URL, new URLSearchParams({ action: "deleteOnline", name: userName }));
+        }
     });
 </script>
 </body>

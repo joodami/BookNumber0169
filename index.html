@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบขอเลขหนังสือออก - โรงเรียนพิมานพิทยาสรรค์</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -17,7 +16,7 @@
         --bg: #f1f5f9; 
         --main-gradient: linear-gradient(135deg, #1a5276, #2980b9);
     }
-    
+
     body { 
         font-family: 'Prompt', sans-serif; 
         background-color: var(--bg); 
@@ -28,6 +27,8 @@
         margin: 0; padding: 0;
     }
 
+
+
     /* --- App Header: ล็อกมาตรฐานเดียวกับระบบสืบค้น --- */
     .app-header {
         background: #ffffff;
@@ -37,7 +38,10 @@
         flex-shrink: 0;
     }
 
+
+
     /* สไตล์สำหรับมือถือ (จอเล็กกว่า 1024px) */
+
     @media (max-width: 1023px) {
         .app-header { padding: 8px 10px 0 10px; }
         .school-logo { height: 40px; margin-bottom: 2px; }
@@ -49,7 +53,7 @@
             margin: 0; 
             white-space: nowrap; 
         }
-        .app-subtitle { 
+       .app-subtitle { 
             font-size: 0.75rem !important; 
             margin-top: 2px; 
             margin-bottom: 5px; 
@@ -57,7 +61,9 @@
             color: #475569; 
             white-space: nowrap; 
         }
+
     }
+
 
     /* สไตล์สำหรับคอมพิวเตอร์ (จอใหญ่กว่า 1024px) */
     @media (min-width: 1024px) {
@@ -82,315 +88,564 @@
     .form-control, .form-select { border-radius: 12px; padding: 12px; border: 2px solid #f1f5f9; background: #f8fafc; }
     .form-control:focus { border-color: var(--accent); box-shadow: none; background: #fff; }
     label { font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #475569; display: block; text-align: left; }
-
     .btn-primary-custom { background: var(--primary); border: none; border-radius: 12px; padding: 12px; font-weight: 600; transition: 0.3s; color: white; }
     .btn-primary-custom:hover { background: var(--accent); transform: translateY(-2px); color: white; }
+
 
     /* --- Modal --- */
     .modal-content { border-radius: 25px; border: none; }
     .modal-icon { font-size: 4rem; margin-bottom: 15px; }
-    
     footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.8rem; color: #94a3b8; }
-    /* --- เพิ่มเติมส่วนคุมความกว้าง Login --- */
-    
-    /* ในมือถือ: ให้กว้างพอดีๆ ไม่เต็มจอจนเกินไป (Logic เดิมที่คุณครูชอบ) */
-    .login-container {
-        max-width: 400px;
-    }
-
-    /* ในหน้าจอคอมพิวเตอร์: ให้ขยายกว้างเท่ากับ Dashboard (max-width-container) */
-    @media (min-width: 1024px) {
-        .login-container {
-            max-width: 750px; /* ปรับค่านี้ให้เท่ากับ max-width ของ Dashboard หรือ form-card ของคุณครูค่ะ */
-        }
-        
-        /* ปรับให้ช่อง Input ในหน้าจอคอมไม่ยาวเฟื้อยจนเกินไป เพื่อความสวยงาม */
-        .login-container .form-control {
-            max-width: 350px;
-            margin: 0 auto;
-        }
-        .login-container .btn-primary-custom {
-            max-width: 350px;
-            margin: 0 auto;
-        }
-    }
 </style>
 </head>
 <body>
 
 <header class="app-header">
+
     <img src="https://raw.githubusercontent.com/joodami/school-assets/main/logo.png" alt="Logo" class="school-logo">
+
     <h1 class="app-title">PS-Sarabun</h1>
+
     <p class="app-subtitle">ระบบขอเลขหนังสือออก ปีพุทธศักราช 2569</p>
+
 </header>
 
+
+
 <div class="container max-width-container pb-4">
+
     <div class="card dash-card mb-4">
+
         <div class="card-body">
+
             <div class="dashboard-row">
+
                 <div class="dash-item">
+
                     <span class="dash-icon">📊</span>
+
                     <div class="dash-number" id="dash-total">0</div>
+
                     <div class="dash-label">ทั้งหมด</div>
+
                 </div>
+
                 <div class="dash-item">
+
                     <span class="dash-icon">📅</span>
+
                     <div class="dash-number" id="dash-today">0</div>
+
                     <div class="dash-label">วันนี้</div>
+
                 </div>
+
                 <div class="dash-item">
+
                     <span class="dash-icon">👤</span>
+
                     <div class="dash-number" id="dash-online">0</div>
+
                     <div class="dash-label">ออนไลน์</div>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
-   <div id="loginSection" class="form-card mx-auto login-container">
-    <div class="card-header-custom">ลงชื่อเข้าใช้งานระบบขอเลขหนังสือออก</div>
-    </div>
+
+
+    <div id="loginSection" class="form-card mx-auto" style="max-width: 400px;">
+
+        <div class="card-header-custom">ลงชื่อเข้าใช้งานระบบขอเลขหนังสือออก</div>
+
         <div class="card-body p-4 text-center">
+
             <p class="small text-muted mb-4">กรุณาระบุหมายเลขโทรศัพท์เพื่อเข้าสู่ระบบ</p>
+
             <div class="position-relative mb-3 text-start">
+
                 <input type="password" id="password" class="form-control text-center" style="letter-spacing: 2px;" placeholder="08XXXXXXXX">
+
                 <span id="togglePassword" class="position-absolute top-50 end-0 translate-middle-y me-3" style="cursor:pointer; color: #cbd5e0;">
+
                     <i class="bi bi-eye"></i>
+
                 </span>
+
             </div>
+
             <button class="btn btn-primary-custom w-100" id="btn-login" onclick="login()">เข้าสู่ระบบ</button>
+
             <div id="loginSpinner" class="d-none mt-3 text-primary">
+
                 <div class="spinner-border spinner-border-sm"></div> <small>กำลังตรวจสอบ...</small>
+
             </div>
+
         </div>
+
     </div>
+
+
 
     <div id="userform" class="form-card d-none">
+
         <div class="card-header-custom">แบบฟอร์มขอเลขหนังสือออก</div>
+
         <div class="card-body p-4">
+
             <div class="row g-3">
+
                 <div class="col-md-4">
+
                     <label>วันที่ขอเลข</label>
+
                     <input type="date" id="birthday" class="form-control">
+
                 </div>
+
                 <div class="col-md-8">
+
                     <label>ชื่อผู้บันทึก</label>
+
                     <input id="user" class="form-control bg-light" disabled>
+
                 </div>
+
                 <div class="col-12">
+
                     <label>กลุ่มงาน / กลุ่มสาระ</label>
+
                     <select id="department" class="form-select">
+
                         <option value="">-- กรุณาเลือกกลุ่มงาน --</option>
+
                         <option value="กลุ่มบริหารวิชาการ">กลุ่มบริหารวิชาการ</option>
+
                         <option value="กลุ่มบริหารงบประมาณ">กลุ่มบริหารงบประมาณ</option>
+
                         <option value="กลุ่มบริหารงานบุคคล">กลุ่มบริหารงานบุคคล</option>
+
                         <option value="กลุ่มบริหารทั่วไป">กลุ่มบริหารทั่วไป</option>
+
                         <option value="กลุ่มกิจการนักเรียน">กลุ่มกิจการนักเรียน</option>
+
                         <option value="สำนักงานอำนวยการ">สำนักงานอำนวยการ</option>
+
                         <option value="อื่นๆ">อื่นๆ (โปรดระบุ)</option>
+
                     </select>
+
                     <input id="departmentOther" class="form-control mt-2 d-none" placeholder="ระบุชื่อกลุ่มงานของคุณ">
+
                 </div>
+
                <div class="col-12">
+
     <label>เรื่อง</label>
+
     <textarea id="detail" class="form-control" rows="2"></textarea>
+
 </div>
+
 <div class="col-12">
+
     <label>เรียน</label>
+
     <input id="detail1" class="form-control">
+
 </div>
+
                 <div class="col-12 mt-4 text-center">
+
                     <button class="btn btn-primary-custom w-100 py-3" style="background:#15803d" id="btn-submit" onclick="submitData()">
+
                         <i class="bi bi-file-earmark-plus me-2"></i> ยืนยันขอเลขหนังสือออก
+
                     </button>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
+
+
 
 <footer>
+
     <div>© 2026 ระบบขอเลขหนังสือออก | งานสารบรรณโรงเรียนพิมานพิทยาสรรค์</div>
+
 </footer>
 
+
+
 <div class="modal fade" id="resultModal" data-bs-backdrop="static" tabindex="-1">
+
     <div class="modal-dialog modal-dialog-centered">
+
         <div class="modal-content p-4 text-center">
+
             <div id="modal-loading">
+
                 <div class="spinner-grow text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+
                 <h5>กำลังประมวลผล...</h5>
+
                 <p class="text-muted">โปรดรอสักครู่ ระบบกำลังออกเลขหนังสือ</p>
+
             </div>
+
             <div id="modal-success" class="d-none">
+
                 <i class="bi bi-check-circle-fill text-success modal-icon"></i>
+
                 <h4 class="fw-bold">ออกเลขสำเร็จ!</h4>
+
                 <div class="alert alert-primary my-3 py-3 fs-5 fw-bold" id="show-bookno"></div>
+
                 <button class="btn btn-primary w-100 py-2 rounded-3" onclick="resetToLogin()">ตกลง</button>
+
             </div>
+
             <div id="modal-error" class="d-none">
+
                 <i class="bi bi-exclamation-triangle-fill text-danger modal-icon"></i>
+
                 <h5 id="error-title">เกิดข้อผิดพลาด</h5>
+
                 <p id="error-msg"></p>
+
                 <button class="btn btn-secondary w-100" onclick="resetToLogin()">ปิดและลองใหม่</button>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
+
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyjIwILkcHCnPbhBE9RSkHXjKGKRPfNQK2_5ZoPpxn24nj04Mu2MVU8qSK7MyNXVPEV/exec";
+
     const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+
     
+
     // UI Elements
+
     const deptSelect = document.getElementById("department");
+
     const deptOther = document.getElementById("departmentOther");
+
     const passwordInput = document.getElementById("password");
+
     const loginSection = document.getElementById("loginSection");
+
     const userform = document.getElementById("userform");
 
+
+
     // Toggle Other Dept
+
     deptSelect.onchange = () => {
+
         if (deptSelect.value === "อื่นๆ") deptOther.classList.remove("d-none");
+
         else { deptOther.classList.add("d-none"); deptOther.value = ""; }
+
     };
+
+
 
     // Toggle Eye Password
+
     document.getElementById("togglePassword").onclick = function() {
+
         const type = passwordInput.type === "password" ? "text" : "password";
+
         passwordInput.type = type;
+
         this.querySelector("i").classList.toggle("bi-eye");
+
         this.querySelector("i").classList.toggle("bi-eye-slash");
+
     };
 
+
+
     // [New] รองรับการกด Enter ในช่องรหัสผ่าน
+
     passwordInput.addEventListener("keydown", (e) => {
+
         if (e.key === "Enter") {
+
             login();
+
         }
+
     });
+
+
 
     async function post(data) {
+
         const response = await fetch(GAS_URL, { method: "POST", body: new URLSearchParams(data) });
+
         return response.json();
+
     }
+
+
 
     // ฟังก์ชัน Reset ระบบกลับสู่หน้า Login
+
     function resetToLogin() {
+
         resultModal.hide();
+
         
+
         // ล้างค่าในฟอร์ม
+
         document.getElementById("detail").value = "";
+
         document.getElementById("detail1").value = "";
+
         deptSelect.value = "";
+
         deptOther.value = "";
+
         deptOther.classList.add("d-none");
+
         passwordInput.value = "";
+
         
+
         // Backend Logout
+
         const userName = document.getElementById("user").value;
+
         if(userName) {
+
             post({ action: "deleteOnline", name: userName });
+
         }
+
         
+
         // สลับ UI
+
         userform.classList.add("d-none");
+
         loginSection.classList.remove("d-none");
+
         document.getElementById("user").value = "";
+
         document.getElementById('birthday').valueAsDate = new Date();
+
     }
+
+
 
     // ฟังก์ชัน Login
+
     function login() {
+
         const pass = passwordInput.value.trim();
+
         if(!pass) return Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสผ่านค่ะ', 'warning');
 
+
+
         document.getElementById("loginSpinner").classList.remove("d-none");
+
         post({ action: "login", password: pass }).then(res => {
+
             document.getElementById("loginSpinner").classList.add("d-none");
+
             if (res.length) {
+
                 document.getElementById("user").value = res[0][1];
+
                 loginSection.classList.add("d-none");
+
                 userform.classList.remove("d-none");
+
                 post({ action: "addOnline", name: res[0][1] });
+
             } else {
+
                 Swal.fire('ล้มเหลว', 'รหัสผ่านไม่ถูกต้องค่ะ', 'error');
+
             }
+
         });
+
     }
+
+
 
     // ฟังก์ชันส่งข้อมูลขอเลข
+
     function submitData() {
+
         const birthday = document.getElementById("birthday").value;
+
         const detail = document.getElementById("detail").value;
+
         const detail1 = document.getElementById("detail1").value;
+
         const dept = deptSelect.value === "อื่นๆ" ? deptOther.value : deptSelect.value;
+
         const user = document.getElementById("user").value;
 
+
+
         if (!birthday || !detail || !detail1 || !dept) {
+
             return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่องค่ะ', 'warning');
+
         }
+
+
 
         resultModal.show();
+
         document.getElementById("modal-loading").classList.remove("d-none");
+
         document.getElementById("modal-success").classList.add("d-none");
+
         document.getElementById("modal-error").classList.add("d-none");
 
+
+
         post({
+
             action: "addRecord",
+
             birthday, detail, detail1, department: dept, user
+
         }).then(res => {
+
             document.getElementById("modal-loading").classList.add("d-none");
+
             if (res.error) {
+
                 document.getElementById("modal-error").classList.remove("d-none");
+
                 document.getElementById("error-msg").innerText = res.error === "expired" ? "Session หมดอายุ (เกิน 5 นาที)" : "มีคิวอื่นค้างอยู่ กรุณาลองใหม่ในภายหลัง";
+
             } else {
+
                 document.getElementById("modal-success").classList.remove("d-none");
+
                 document.getElementById("show-bookno").innerText = `ศธ 04338.51/${res.bookno}`;
+
             }
+
         });
+
     }
+
+
 
     // โหลด Dashboard
+
     function loadDashboard() {
+
         post({ action: "dashboard" }).then(d => {
+
             document.getElementById("dash-total").innerText = d.total;
+
             document.getElementById("dash-today").innerText = d.today;
+
             document.getElementById("dash-online").innerText = d.online;
+
         });
+
     }
+
+
 
     // ตรวจสอบความเคลื่อนไหว (Session Timeout 5 mins)
+
     function checkSession() {
+
         const userName = document.getElementById("user").value;
+
         if(!userName) return;
+
         
+
         post({ action: "checkOnline", name: userName }).then(res => {
+
             if(res.expired) {
+
                 resultModal.show();
+
                 document.getElementById("modal-loading").classList.add("d-none");
+
                 document.getElementById("modal-success").classList.add("d-none");
+
                 document.getElementById("modal-error").classList.remove("d-none");
+
                 document.getElementById("error-title").innerText = "⏰ หมดเวลาใช้งาน";
+
                 document.getElementById("error-msg").innerText = "กรุณาเข้าสู่ระบบใหม่";
+
             }
+
         });
+
     }
 
+
+
     document.addEventListener("DOMContentLoaded", () => {
+
         loadDashboard();
+
         setInterval(loadDashboard, 30000); // อัปเดตยอดทุก 30 วิ
+
         setInterval(checkSession, 10000);  // เช็คออนไลน์ทุก 10 วิ (Logic เดิม)
+
         document.getElementById('birthday').valueAsDate = new Date();
+
     });
 
+
+
     // เมื่อปิดหน้าจอ ให้ลบชื่อออกจากสถานะออนไลน์ทันที
+
     window.addEventListener("beforeunload", () => {
+
         const userName = document.getElementById("user").value;
+
         if(userName){
+
             navigator.sendBeacon(GAS_URL, new URLSearchParams({ action: "deleteOnline", name: userName }));
+
         }
+
     });
+
 </script>
+
 </body>
+
 </html>

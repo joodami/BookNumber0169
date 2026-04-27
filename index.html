@@ -91,6 +91,29 @@
     .modal-icon { font-size: 4rem; margin-bottom: 15px; }
     
     footer { margin-top: auto; padding: 20px; text-align: center; font-size: 0.8rem; color: #94a3b8; }
+    /* --- เพิ่มเติมส่วนคุมความกว้าง Login --- */
+    
+    /* ในมือถือ: ให้กว้างพอดีๆ ไม่เต็มจอจนเกินไป (Logic เดิมที่คุณครูชอบ) */
+    .login-container {
+        max-width: 400px;
+    }
+
+    /* ในหน้าจอคอมพิวเตอร์: ให้ขยายกว้างเท่ากับ Dashboard (max-width-container) */
+    @media (min-width: 1024px) {
+        .login-container {
+            max-width: 750px; /* ปรับค่านี้ให้เท่ากับ max-width ของ Dashboard หรือ form-card ของคุณครูค่ะ */
+        }
+        
+        /* ปรับให้ช่อง Input ในหน้าจอคอมไม่ยาวเฟื้อยจนเกินไป เพื่อความสวยงาม */
+        .login-container .form-control {
+            max-width: 350px;
+            margin: 0 auto;
+        }
+        .login-container .btn-primary-custom {
+            max-width: 350px;
+            margin: 0 auto;
+        }
+    }
 </style>
 </head>
 <body>
@@ -124,8 +147,9 @@
         </div>
     </div>
 
-    <div id="loginSection" class="form-card mx-auto" style="max-width: 400px;">
-        <div class="card-header-custom">ลงชื่อเข้าใช้งานระบบขอเลขหนังสือออก</div>
+   <div id="loginSection" class="form-card mx-auto login-container">
+    <div class="card-header-custom">ลงชื่อเข้าใช้งานระบบขอเลขหนังสือออก</div>
+    </div>
         <div class="card-body p-4 text-center">
             <p class="small text-muted mb-4">กรุณาระบุหมายเลขโทรศัพท์เพื่อเข้าสู่ระบบ</p>
             <div class="position-relative mb-3 text-start">
